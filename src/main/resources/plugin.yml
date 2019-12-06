@@ -1,0 +1,7 @@
+name: AutoNick
+version: 1.3.4
+main: de.seltrox.autonick.AutoNick
+author: Seltrox
+description: Its a open source and configurable AutoNick plugin
+commands:
+  nick:

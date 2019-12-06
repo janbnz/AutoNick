@@ -1,0 +1,1 @@
+Added adminPermission to config (for /nick update)
