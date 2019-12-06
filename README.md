@@ -50,10 +50,10 @@ AutoNick is a open source and configurable AutoNick plugin which allows you to c
 ```gradle
 	allprojects {
 		repositories {
+			...
 			maven { url 'https://jitpack.io' }
 		}
 	}
-}
 
 	dependencies {
 	        implementation 'com.github.Seltrox:AutoNick:Tag'
