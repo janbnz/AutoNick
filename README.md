@@ -62,13 +62,13 @@ AutoNick is a open source and configurable AutoNick plugin which allows you to c
 
 ## History
 
-- **Added update check command**
+- **NEWEST** *Added update check command*
 
-- **This plugin is now able to change your tab and chat name. It's configurable.**
+- *This plugin is now able to change your tab and chat name. It's configurable.*
 
-- **You're now able to nick yourself with the /nick command**
+- *You're now able to nick yourself with the /nick command*
 
-- **It's finally here!
+- *It's finally here!*
 I've completely recoded the AutoNick plugin.
 I fixed many bugs, errors and added new features!
 Have fun!**
