@@ -30,15 +30,14 @@ public class PlayerJoinListener implements Listener {
                 player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
                         .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
             }
-            if (AutoNick.getConfiguration().isBungeeCord()) {
-                if (AutoNick.getConfiguration().getBoolean("nickOnThisServer")) {
-                    if (AutoNick.getConfiguration().isBungeeCord() && api.hasNickActivated(player.getUniqueId().toString())) {
-                        api.nickPlayer(player);
-                        player.getInventory().setItem(AutoNick.getConfiguration().getInteger("NickItemSlot") - 1,
-                                new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
-                                        .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
-                        player.sendMessage(AutoNick.getConfiguration().getString("NickMessage").replace("{NICKNAME}", player.getCustomName()));
-                    }
+            if (AutoNick.getConfiguration().getBoolean("nickOnThisServer")) {
+                System.out.println(api.hasNickActivated(player.getUniqueId().toString()) + " " + AutoNick.getConfiguration().isBungeeCord());
+                if (api.hasNickActivated(player.getUniqueId().toString()) || !AutoNick.getConfiguration().isBungeeCord()) {
+                    api.nickPlayer(player);
+                    player.getInventory().setItem(AutoNick.getConfiguration().getInteger("NickItemSlot") - 1,
+                            new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
+                                    .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
+                    player.sendMessage(AutoNick.getConfiguration().getString("NickMessage").replace("{NICKNAME}", player.getCustomName()));
                 }
             }
         } else {
