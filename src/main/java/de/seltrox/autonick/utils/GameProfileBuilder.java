@@ -26,8 +26,8 @@ import java.util.*;
 
 public class GameProfileBuilder {
 
-    private static Gson gson = new GsonBuilder().disableHtmlEscaping().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).registerTypeAdapter(GameProfile.class, new GameProfileSerializer()).registerTypeAdapter(PropertyMap.class, new PropertyMap.Serializer()).create();
-    private static HashMap<UUID, CachedProfile> cache = new HashMap<>();
+    private static final Gson gson = new GsonBuilder().disableHtmlEscaping().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).registerTypeAdapter(GameProfile.class, new GameProfileSerializer()).registerTypeAdapter(PropertyMap.class, new PropertyMap.Serializer()).create();
+    private static final HashMap<UUID, CachedProfile> cache = new HashMap<>();
     private static long cacheTime = -1L;
 
     public static GameProfile fetch(UUID uuid) throws IOException {
@@ -70,7 +70,7 @@ public class GameProfileBuilder {
         if (cape) {
             args.add(capeUrl);
         }
-        profile.getProperties().put("textures", new Property("textures", Base64Coder.encodeString(String.format(cape ? "{\"timestamp\":%d,\"profileId\":\"%s\",\"profileName\":\"%s\",\"isPublic\":true,\"textures\":{\"SKIN\":{\"url\":\"%s\"},\"CAPE\":{\"url\":\"%s\"}}}" : "{\"timestamp\":%d,\"profileId\":\"%s\",\"profileName\":\"%s\",\"isPublic\":true,\"textures\":{\"SKIN\":{\"url\":\"%s\"}}}", args.toArray(new Object[args.size()])))));
+        profile.getProperties().put("textures", new Property("textures", Base64Coder.encodeString(String.format(cape ? "{\"timestamp\":%d,\"profileId\":\"%s\",\"profileName\":\"%s\",\"isPublic\":true,\"textures\":{\"SKIN\":{\"url\":\"%s\"},\"CAPE\":{\"url\":\"%s\"}}}" : "{\"timestamp\":%d,\"profileId\":\"%s\",\"profileName\":\"%s\",\"isPublic\":true,\"textures\":{\"SKIN\":{\"url\":\"%s\"}}}", args.toArray(new Object[0])))));
         return profile;
     }
 
@@ -109,7 +109,7 @@ public class GameProfileBuilder {
     }
 
     private static class CachedProfile {
-        private GameProfile profile;
+        private final GameProfile profile;
 
         private CachedProfile(GameProfile profile) {
             this.profile = profile;

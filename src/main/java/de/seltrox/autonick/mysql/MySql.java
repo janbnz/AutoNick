@@ -15,14 +15,14 @@ import java.util.concurrent.Executors;
 
 public class MySql {
 
-    private String host;
-    private String database;
-    private String username;
-    private String password;
+    private final String host;
+    private final String database;
+    private final String username;
+    private final String password;
 
     private Connection connection;
 
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public MySql(String host, String database, String username, String password) {
         this.host = host;

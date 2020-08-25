@@ -30,7 +30,7 @@ public class ItemBuilder {
     /**
      * Is the ItemStack which will be returned at the end
      */
-    private ItemStack itemStack;
+    private final ItemStack itemStack;
 
     /**
      * Is the lore of the item

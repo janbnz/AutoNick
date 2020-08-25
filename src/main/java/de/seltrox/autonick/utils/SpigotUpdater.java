@@ -20,7 +20,7 @@ import java.net.URLConnection;
 public class SpigotUpdater {
 
     private URL checkURL;
-    private String newVersion = "";
+    private String newVersion;
     private final int projectId = 27441;
 
     public SpigotUpdater() {

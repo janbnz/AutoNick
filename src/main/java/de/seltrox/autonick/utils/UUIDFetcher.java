@@ -25,20 +25,13 @@ import java.util.function.Consumer;
 
 public class UUIDFetcher {
 
-    /**
-     * Date when name changes were introduced
-     *
-     * @see UUIDFetcher#getUUIDAt(String, long)
-     */
-    public static final long FEBRUARY_2015 = 1422748800000L;
-
-    private static Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
+    private static final Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
 
     private static final String UUID_URL = "https://api.mojang.com/users/profiles/minecraft/%s?at=%d";
     private static final String NAME_URL = "https://api.mojang.com/user/profiles/%s/names";
-    private static Map<String, UUID> uuidCache = new HashMap<String, UUID>();
-    private static Map<UUID, String> nameCache = new HashMap<UUID, String>();
-    private static ExecutorService pool = Executors.newCachedThreadPool();
+    private static final Map<String, UUID> uuidCache = new HashMap<>();
+    private static final Map<UUID, String> nameCache = new HashMap<>();
+    private static final ExecutorService pool = Executors.newCachedThreadPool();
 
     private String name;
     private UUID id;
@@ -79,7 +72,6 @@ public class UUIDFetcher {
      *
      * @param name      The name
      * @param timestamp Time when the player had this name in milliseconds
-     * @see UUIDFetcher#FEBRUARY_2015
      */
     public static UUID getUUIDAt(String name, long timestamp) {
         name = name.toLowerCase();
@@ -134,4 +126,5 @@ public class UUIDFetcher {
         }
         return null;
     }
+
 }

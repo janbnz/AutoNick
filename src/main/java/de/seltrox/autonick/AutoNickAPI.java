@@ -35,18 +35,18 @@ import java.util.*;
 
 public class AutoNickAPI {
 
-    private HashMap<UUID, String> playerName = new HashMap<>();
-    private HashMap<String, Player> namePlayer = new HashMap<>();
-    private HashMap<Player, BukkitRunnable> run = new HashMap<>();
-    private HashMap<Player, String> oldDisplayname = new HashMap<>();
-    private HashMap<Player, String> nicks = new HashMap<>();
-    private HashMap<Player, String> realUUIDS = new HashMap<>();
+    private final HashMap<UUID, String> playerName = new HashMap<>();
+    private final HashMap<String, Player> namePlayer = new HashMap<>();
+    private final HashMap<Player, BukkitRunnable> run = new HashMap<>();
+    private final HashMap<Player, String> oldDisplayname = new HashMap<>();
+    private final HashMap<Player, String> nicks = new HashMap<>();
+    private final HashMap<Player, String> realUUIDS = new HashMap<>();
 
     private List<String> names = new ArrayList<>();
     private List<String> skins = new ArrayList<>();
-    private ArrayList<Player> nickedPlayers = new ArrayList<>();
+    private final ArrayList<Player> nickedPlayers = new ArrayList<>();
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     public AutoNickAPI() {
         initializeNames();
@@ -55,10 +55,6 @@ public class AutoNickAPI {
     private void initializeNames() {
         names = AutoNick.getInstance().getConfig().getStringList("Names");
         skins = AutoNick.getInstance().getConfig().getStringList("Skins");
-    }
-
-    public boolean hasDelayParsed(Player player) {
-        return !run.containsKey(player);
     }
 
     public void nickPlayer(Player player, String nick) {
@@ -71,21 +67,13 @@ public class AutoNickAPI {
         EntityPlayer newEntityPlayer = new EntityPlayer(nmsServer, nmsWorld, new GameProfile(player.getUniqueId(), nick), new PlayerInteractManager(nmsWorld));
         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
 
-        for (Player players : Bukkit.getOnlinePlayers()) {
-            PlayerConnection connection = ((CraftPlayer) players).getHandle().playerConnection;
-            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, entityPlayer));
-            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, newEntityPlayer));
-        }
+        this.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, entityPlayer));
+        this.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, newEntityPlayer));
 
         oldDisplayname.put(player, player.getPlayerListName());
 
-        String tabName;
-        if (AutoNick.getConfiguration().getBoolean("changeTabname")) {
-            tabName = AutoNick.getConfiguration().getString("tabName").replace("{NICKNAME}", nick);
-        } else {
-            tabName = nick;
-        }
-
+        String tabName = (AutoNick.getConfiguration().getBoolean("changeTabname") ? AutoNick.getConfiguration().getString("tabName").replace("{NICKNAME}", nick)
+                : nick);
         player.setDisplayName(tabName);
         player.setCustomName(tabName);
         player.setPlayerListName(tabName);
@@ -131,11 +119,8 @@ public class AutoNickAPI {
         EntityPlayer newEntityPlayer = new EntityPlayer(nmsServer, nmsWorld, new GameProfile(player.getUniqueId(), name), new PlayerInteractManager(nmsWorld));
         EntityPlayer entityPlayer = new EntityPlayer(nmsServer, nmsWorld, new GameProfile(player.getUniqueId(), player.getCustomName()), new PlayerInteractManager(nmsWorld));
 
-        for (Player players : Bukkit.getOnlinePlayers()) {
-            PlayerConnection connection = ((CraftPlayer) players).getHandle().playerConnection;
-            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, entityPlayer));
-            connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, newEntityPlayer));
-        }
+        this.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, entityPlayer));
+        this.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, newEntityPlayer));
 
         names.add(player.getName());
 
@@ -176,8 +161,8 @@ public class AutoNickAPI {
     }
 
     private void changeSkin(Player player, UUID uuid) {
-        CraftPlayer cp = (CraftPlayer) player;
-        GameProfile skingp = cp.getProfile();
+        CraftPlayer craftPlayer = (CraftPlayer) player;
+        GameProfile skingp = craftPlayer.getProfile();
         try {
             skingp = GameProfileBuilder.fetch(uuid);
         } catch (Exception e) {
@@ -188,21 +173,21 @@ public class AutoNickAPI {
         }
 
         Collection<Property> props = skingp.getProperties().get("textures");
-        cp.getProfile().getProperties().removeAll("textures");
-        cp.getProfile().getProperties().putAll("textures", props);
+        craftPlayer.getProfile().getProperties().removeAll("textures");
+        craftPlayer.getProfile().getProperties().putAll("textures", props);
 
-        sendPacket(new PacketPlayOutEntityDestroy(cp.getEntityId()));
-        sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, cp.getHandle()));
+        sendPacket(new PacketPlayOutEntityDestroy(craftPlayer.getEntityId()));
+        sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, craftPlayer.getHandle()));
 
         new BukkitRunnable() {
             public void run() {
-                sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, cp.getHandle()));
-                PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(cp.getHandle());
-                for (Player all : Bukkit.getOnlinePlayers()) {
-                    if (!all.getName().equals(cp.getName())) {
-                        ((CraftPlayer) all).getHandle().playerConnection.sendPacket(spawn);
+                sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, craftPlayer.getHandle()));
+                PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(craftPlayer.getHandle());
+                Bukkit.getOnlinePlayers().forEach(currentPlayer -> {
+                    if (!(currentPlayer.getName().equals(craftPlayer.getName()))) {
+                        ((CraftPlayer) currentPlayer).getHandle().playerConnection.sendPacket(spawn);
                     }
-                }
+                });
 
                 int heldItemSlot = player.getInventory().getHeldItemSlot();
                 int food = player.getFoodLevel();
@@ -211,11 +196,14 @@ public class AutoNickAPI {
                 int level = player.getLevel();
                 boolean flying = player.isFlying();
 
-                cp.getHandle().playerConnection.sendPacket(new PacketPlayOutRespawn(cp.getHandle().getWorld().worldProvider.getDimension(),
-                        cp.getHandle().getWorld().getDifficulty(), cp.getHandle().getWorld().worldData.getType(),
-                        WorldSettings.EnumGamemode.getById(cp.getGameMode().getValue())));
+                sendPacket(player, new PacketPlayOutRespawn(craftPlayer.getHandle().getWorld().worldProvider.getDimension(),
+                        craftPlayer.getHandle().getWorld().getDifficulty(), craftPlayer.getHandle().getWorld().worldData.getType(),
+                        WorldSettings.EnumGamemode.valueOf(craftPlayer.getGameMode().toString())));
 
-                cp.getHandle().playerConnection.teleport(new Location(player.getWorld(), cp.getHandle().locX, cp.getHandle().locY, cp.getHandle().locZ, cp.getHandle().yaw, cp.getHandle().pitch));
+                craftPlayer.getHandle().playerConnection.teleport(new Location(player.getWorld(),
+                        craftPlayer.getHandle().locX, craftPlayer.getHandle().locY,
+                        craftPlayer.getHandle().locZ, craftPlayer.getHandle().yaw, craftPlayer.getHandle().pitch));
+
                 player.updateInventory();
                 player.getInventory().setHeldItemSlot(heldItemSlot);
                 player.setHealth(health);
@@ -245,8 +233,12 @@ public class AutoNickAPI {
         return null;
     }
 
-    private void sendPacket(Packet packet) {
+    private void sendPacket(Packet<?> packet) {
         Bukkit.getOnlinePlayers().forEach(all -> ((CraftPlayer) all).getHandle().playerConnection.sendPacket(packet));
+    }
+
+    private void sendPacket(Player player, Packet<?> packet) {
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
     public String getNickname(Player player) {
