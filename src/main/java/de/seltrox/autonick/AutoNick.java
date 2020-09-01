@@ -7,7 +7,7 @@ import de.seltrox.autonick.listener.PlayerInteractListener;
 import de.seltrox.autonick.listener.PlayerJoinListener;
 import de.seltrox.autonick.listener.PlayerQuitListener;
 import de.seltrox.autonick.mysql.MySql;
-import de.seltrox.autonick.stats.AutoNickStats;
+import de.seltrox.autonick.stats.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,7 +25,8 @@ public class AutoNick extends JavaPlugin {
         instance = this;
         configuration = new AutoNickConfiguration(this);
         api = new AutoNickAPI();
-        new AutoNickStats(this);
+        final int pluginId = 8730;
+        final Metrics metrics = new Metrics(this, pluginId);
 
         /*      LISTENER     */
         PluginManager pluginManager = getServer().getPluginManager();
