@@ -2,10 +2,7 @@ package de.seltrox.autonick;
 
 import de.seltrox.autonick.commands.NickCommand;
 import de.seltrox.autonick.config.AutoNickConfiguration;
-import de.seltrox.autonick.listener.PlayerChatListener;
-import de.seltrox.autonick.listener.PlayerInteractListener;
-import de.seltrox.autonick.listener.PlayerJoinListener;
-import de.seltrox.autonick.listener.PlayerQuitListener;
+import de.seltrox.autonick.listener.*;
 import de.seltrox.autonick.mysql.MySql;
 import de.seltrox.autonick.stats.Metrics;
 import org.bukkit.Bukkit;
@@ -34,6 +31,7 @@ public class AutoNick extends JavaPlugin {
         pluginManager.registerEvents(new PlayerInteractListener(), this);
         pluginManager.registerEvents(new PlayerQuitListener(), this);
         pluginManager.registerEvents(new PlayerChatListener(), this);
+        pluginManager.registerEvents(new InventoryClickListener(), this);
 
         /*      COMMANDS    */
         getCommand("nick").setExecutor(new NickCommand());

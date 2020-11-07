@@ -14,7 +14,6 @@ import com.mojang.authlib.properties.Property;
 import de.seltrox.autonick.events.PlayerNickEvent;
 import de.seltrox.autonick.utils.GameProfileBuilder;
 import de.seltrox.autonick.utils.ItemBuilder;
-import de.seltrox.autonick.utils.UUIDFetcher;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,7 +24,6 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -141,7 +139,7 @@ public class AutoNickAPI {
         }
 
         if (AutoNick.getConfiguration().getBoolean("changeSkin")) {
-            changeSkin(player, UUIDFetcher.getUUID(name));
+            changeSkin(player, player.getUniqueId());
         }
 
         if (AutoNick.getConfiguration().getBoolean("NickDelay")) {
@@ -162,16 +160,7 @@ public class AutoNickAPI {
 
     private void changeSkin(Player player, UUID uuid) {
         CraftPlayer craftPlayer = (CraftPlayer) player;
-        GameProfile skingp = craftPlayer.getProfile();
-        try {
-            skingp = GameProfileBuilder.fetch(uuid);
-        } catch (Exception e) {
-            try {
-                skingp = GameProfileBuilder.fetch(UUID.fromString("4d0c325f-1dd4-403a-8268-3ccf42e981a4"));
-            } catch (IOException ignored) {
-            }
-        }
-
+        GameProfile skingp = GameProfileBuilder.fetch(uuid);
         Collection<Property> props = skingp.getProperties().get("textures");
         craftPlayer.getProfile().getProperties().removeAll("textures");
         craftPlayer.getProfile().getProperties().putAll("textures", props);

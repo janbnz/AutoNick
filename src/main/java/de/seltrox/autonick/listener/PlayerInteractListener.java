@@ -11,8 +11,10 @@ package de.seltrox.autonick.listener;
 
 import de.seltrox.autonick.AutoNick;
 import de.seltrox.autonick.AutoNickAPI;
+import de.seltrox.autonick.gui.NickGui;
 import de.seltrox.autonick.utils.ItemBuilder;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,23 +43,28 @@ public class PlayerInteractListener implements Listener {
                         return;
                     }
 
-                    if (AutoNick.getConfiguration().isBungeeCord()) {
-                        api.toggleNick(player);
+                    if (AutoNick.getConfiguration().getBoolean("nickGui")) {
+                        NickGui.open(player);
+                        player.playSound(player.getLocation(), Sound.CHICKEN_EGG_POP, 1, 1);
                     } else {
-                        if (api.isNicked(player)) {
-                            player.sendMessage(AutoNick.getConfiguration().getString("UnnickMessage").replace("{NICKNAME}", player.getCustomName()));
-                            api.unnick(player);
-                            if (AutoNick.getConfiguration().getBoolean("NickItem")) {
-                                player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
-                                        .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
-                            }
+                        if (AutoNick.getConfiguration().isBungeeCord()) {
+                            api.toggleNick(player);
                         } else {
-                            api.nickPlayer(player);
-                            if (AutoNick.getConfiguration().getBoolean("NickItem")) {
-                                player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
-                                        .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
+                            if (api.isNicked(player)) {
+                                player.sendMessage(AutoNick.getConfiguration().getString("UnnickMessage").replace("{NICKNAME}", player.getCustomName()));
+                                api.unnick(player);
+                                if (AutoNick.getConfiguration().getBoolean("NickItem")) {
+                                    player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
+                                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
+                                }
+                            } else {
+                                api.nickPlayer(player);
+                                if (AutoNick.getConfiguration().getBoolean("NickItem")) {
+                                    player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
+                                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
+                                }
+                                player.sendMessage(AutoNick.getConfiguration().getString("NickMessage").replace("{NICKNAME}", AutoNick.getApi().getNickname(player)));
                             }
-                            player.sendMessage(AutoNick.getConfiguration().getString("NickMessage").replace("{NICKNAME}", AutoNick.getApi().getNickname(player)));
                         }
                     }
                 }

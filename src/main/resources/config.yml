@@ -28,6 +28,11 @@ changeChat: true
 chatFormat: "&6Premium &7» &6{NICKNAME}&7: &f"
 # ============ General ============ #
 
+# ============ Gui ============ #
+nickGui: false
+guiTitle: "&8» &aAutoNick"
+# ============ Gui ============ #
+
 # =========== Items ============ #
 NickItem: true
 NickItemSlot: 5
