@@ -24,7 +24,8 @@ public class InventoryClickListener implements Listener {
     private void onInventoryClick(final InventoryClickEvent event) {
         if (event.getClickedInventory() != null && event.getCurrentItem() != null) {
             final Player player = (Player) event.getWhoClicked();
-            if (event.getClickedInventory().getName().equals(AutoNick.getConfiguration().getString("guiTitle"))) {
+            if (event.getView().getTitle()
+                .equals(AutoNick.getConfiguration().getString("guiTitle"))) {
                 AutoNickAPI api = AutoNick.getApi();
                 event.setCancelled(true);
 
@@ -34,7 +35,9 @@ public class InventoryClickListener implements Listener {
                         api.toggleNick(player);
                     } else {
                         if (api.isNicked(player)) {
-                            player.sendMessage(AutoNick.getConfiguration().getString("UnnickMessage").replace("{NICKNAME}", player.getCustomName()));
+                            player.sendMessage(
+                                AutoNick.getConfiguration().getString("UnnickMessage")
+                                    .replace("{NICKNAME}", player.getCustomName()));
                             api.unnick(player);
                             if (AutoNick.getConfiguration().getBoolean("NickItem")) {
                                 player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
