@@ -2,7 +2,11 @@ package de.seltrox.autonick;
 
 import de.seltrox.autonick.commands.NickCommand;
 import de.seltrox.autonick.config.AutoNickConfiguration;
-import de.seltrox.autonick.listener.*;
+import de.seltrox.autonick.listener.InventoryClickListener;
+import de.seltrox.autonick.listener.PlayerChatListener;
+import de.seltrox.autonick.listener.PlayerInteractListener;
+import de.seltrox.autonick.listener.PlayerJoinListener;
+import de.seltrox.autonick.listener.PlayerQuitListener;
 import de.seltrox.autonick.mysql.MySql;
 import de.seltrox.autonick.stats.Metrics;
 import org.bukkit.Bukkit;
@@ -22,8 +26,6 @@ public class AutoNick extends JavaPlugin {
         instance = this;
         configuration = new AutoNickConfiguration(this);
         api = new AutoNickAPI();
-        final int pluginId = 8730;
-        final Metrics metrics = new Metrics(this, pluginId);
 
         /*      LISTENER     */
         PluginManager pluginManager = getServer().getPluginManager();
@@ -41,14 +43,24 @@ public class AutoNick extends JavaPlugin {
             mySql = new MySql(configuration.getString("Host"), configuration.getString("Database"), configuration.getString("Username"), configuration.getString("Password"));
             if (mySql.isConnected()) {
                 String tableName = configuration.getString("TableName");
-                mySql.update("CREATE TABLE IF NOT EXISTS " + tableName + "(UUID varchar(64), Activated int, NickName varchar(64));");
-                Bukkit.getConsoleSender().sendMessage(configuration.getPrefix() + "§aSuccessfully connected to the database!");
+                mySql.update("CREATE TABLE IF NOT EXISTS " + tableName
+                    + "(UUID varchar(64), Activated int, NickName varchar(64));");
+                Bukkit.getConsoleSender().sendMessage(
+                    configuration.getPrefix() + "§aSuccessfully connected to the database!");
             } else {
                 configuration.setBungeeCord(false);
-                Bukkit.getConsoleSender().sendMessage(configuration.getPrefix() + "§cCan't connect to the MySQL database!");
-                Bukkit.getConsoleSender().sendMessage(configuration.getPrefix() + "§cBungeeCord is now disabled!");
+                Bukkit.getConsoleSender().sendMessage(
+                    configuration.getPrefix() + "§cCan't connect to the MySQL database!");
+                Bukkit.getConsoleSender()
+                    .sendMessage(configuration.getPrefix() + "§cBungeeCord is now disabled!");
             }
         }
+
+        /*     METRICS     */
+        final int pluginId = 8730;
+        final Metrics metrics = new Metrics(this, pluginId);
+        metrics.addCustomChart(new Metrics.SimplePie("bungeecord",
+            () -> String.valueOf(configuration.isBungeeCord())));
     }
 
     @Override
