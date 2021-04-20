@@ -10,28 +10,18 @@
 package de.seltrox.autonick.config;
 
 import de.seltrox.autonick.AutoNick;
-import jdk.internal.util.xml.impl.ReaderUTF8;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 public class AutoNickConfiguration {
 
-    private FileConfiguration configuration;
+    private final FileConfiguration configuration;
 
     private boolean bungeeCord;
 
     public AutoNickConfiguration(AutoNick plugin) {
         plugin.saveDefaultConfig();
-        try {
-            configuration = YamlConfiguration.loadConfiguration(new ReaderUTF8(new FileInputStream(new File(plugin.getDataFolder(), "config.yml"))));
-            bungeeCord = getBoolean("bungeecord");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        configuration = plugin.getConfig();
+        bungeeCord = getBoolean("bungeecord");
     }
 
     public String getString(String key) {
