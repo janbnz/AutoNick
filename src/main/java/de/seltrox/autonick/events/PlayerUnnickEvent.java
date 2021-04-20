@@ -10,23 +10,18 @@
 package de.seltrox.autonick.events;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.PlayerEvent;
 
-public class PlayerUnnickEvent extends Event {
+public class PlayerUnnickEvent extends PlayerEvent {
 
     private static final HandlerList handlerList = new HandlerList();
 
-    private final Player player;
     private final String nickname;
 
     public PlayerUnnickEvent(Player player, String nickname) {
-        this.player = player;
+        super(player);
         this.nickname = nickname;
-    }
-
-    public Player getPlayer() {
-        return player;
     }
 
     public String getNickname() {
