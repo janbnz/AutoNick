@@ -8,7 +8,8 @@ import de.seltrox.autonick.listener.PlayerInteractListener;
 import de.seltrox.autonick.listener.PlayerJoinListener;
 import de.seltrox.autonick.listener.PlayerQuitListener;
 import de.seltrox.autonick.mysql.MySql;
-import de.seltrox.autonick.stats.Metrics;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -59,7 +60,7 @@ public class AutoNick extends JavaPlugin {
         /*     METRICS     */
         final int pluginId = 8730;
         final Metrics metrics = new Metrics(this, pluginId);
-        metrics.addCustomChart(new Metrics.SimplePie("bungeecord",
+        metrics.addCustomChart(new SimplePie("bungeecord",
             () -> String.valueOf(configuration.isBungeeCord())));
     }
 
