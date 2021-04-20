@@ -1,12 +1,3 @@
-/*
- * (C) Copyright 2020, Jan Benz, http://seltrox.de.
- *
- * This software is released under the terms of the Unlicense.
- * See https://unlicense.org/
- * for more information.
- *
- */
-
 package de.seltrox.autonick.stats;
 
 import com.google.gson.JsonArray;
