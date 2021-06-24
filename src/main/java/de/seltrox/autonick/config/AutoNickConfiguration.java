@@ -9,49 +9,64 @@
 
 package de.seltrox.autonick.config;
 
+import com.sun.org.apache.xerces.internal.impl.io.UTF8Reader;
 import de.seltrox.autonick.AutoNick;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class AutoNickConfiguration {
 
-    private final FileConfiguration configuration;
+  private FileConfiguration configuration;
 
-    private boolean bungeeCord;
+  private boolean bungeeCord;
 
-    public AutoNickConfiguration(AutoNick plugin) {
-        plugin.saveDefaultConfig();
-        configuration = plugin.getConfig();
-        bungeeCord = getBoolean("bungeecord");
+  public AutoNickConfiguration(AutoNick plugin) {
+    plugin.saveDefaultConfig();
+
+    try {
+      configuration = YamlConfiguration.loadConfiguration(
+          new UTF8Reader(new FileInputStream(new File(plugin.getDataFolder(), "config.yml"))));
+    } catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+      return;
     }
 
-    public String getString(String key) {
-        if (!key.equals("prefix")) {
-            return configuration.getString(key).replace("&", "§").replace("{PREFIX}", getString("prefix"));
-        }
-        return configuration.getString(key).replace("&", "§");
-    }
+    bungeeCord = getBoolean("bungeecord");
+  }
 
-    public boolean getBoolean(String key) {
-        return configuration.getBoolean(key);
+  public String getString(String key) {
+    if (!key.equals("prefix")) {
+      return ChatColor.translateAlternateColorCodes('&',
+          configuration.getString(key).replace("{PREFIX}", getString("prefix")));
     }
+    return ChatColor.translateAlternateColorCodes('&', configuration.getString(key));
+  }
 
-    public int getInteger(String key) {
-        return configuration.getInt(key);
-    }
+  public boolean getBoolean(String key) {
+    return configuration.getBoolean(key);
+  }
 
-    public String getPrefix() {
-        return configuration.getString("prefix").replace("&", "§") + " ";
-    }
+  public int getInteger(String key) {
+    return configuration.getInt(key);
+  }
 
-    public boolean isBungeeCord() {
-        return bungeeCord;
-    }
+  public String getPrefix() {
+    return configuration.getString("prefix").replace("&", "§") + " ";
+  }
 
-    public void setBungeeCord(boolean bungeeCord) {
-        this.bungeeCord = bungeeCord;
-    }
+  public boolean isBungeeCord() {
+    return bungeeCord;
+  }
 
-    public int getNickItemSlot() {
-        return getInteger("NickItemSlot") - 1;
-    }
+  public void setBungeeCord(boolean bungeeCord) {
+    this.bungeeCord = bungeeCord;
+  }
+
+  public int getNickItemSlot() {
+    return getInteger("NickItemSlot") - 1;
+  }
 }

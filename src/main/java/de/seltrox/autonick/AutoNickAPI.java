@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -55,7 +56,8 @@ public class AutoNickAPI {
   }
 
   private void initializeNames() {
-    names = AutoNick.getInstance().getConfig().getStringList("Names");
+    names = AutoNick.getInstance().getConfig().getStringList("Names").stream().filter(name -> name.length() <= 16 && name.length() >= 3).collect(
+        Collectors.toList());
     skins = AutoNick.getInstance().getConfig().getStringList("Skins");
   }
 
@@ -370,6 +372,9 @@ public class AutoNickAPI {
             boolean flying = player.isFlying();
 
             final Class<?> craftPlayer = NMSReflections.getCraftBukkitClass("entity.CraftPlayer");
+            if (craftPlayer == null) {
+              return;
+            }
             final Method playerHandle = craftPlayer.getMethod("getHandle");
             final Object entityPlayer = playerHandle.invoke(player);
 

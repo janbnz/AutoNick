@@ -15,7 +15,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <url>http://seltrox.de</url>
 
     <build>
         <defaultGoal>clean package</defaultGoal>
@@ -27,6 +26,7 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>
@@ -44,7 +44,6 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.bstats</pattern>
-                                    <!-- Replace this with your package! -->
                                     <shadedPattern>de.seltrox.autonick</shadedPattern>
                                 </relocation>
                             </relocations>
@@ -97,6 +96,7 @@
             <groupId>com.mojang</groupId>
             <artifactId>authlib</artifactId>
             <version>1.5.25</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
