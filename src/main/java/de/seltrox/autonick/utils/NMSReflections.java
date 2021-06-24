@@ -18,6 +18,9 @@ public class NMSReflections {
   public static void setField(Class<?> clazz, String fieldName, Object value) {
     try {
       final Field field = getField(clazz, fieldName);
+      if (field == null) {
+        return;
+      }
       field.set(clazz, value);
       field.setAccessible(false);
     } catch (NoSuchFieldError | IllegalAccessException ex) {
@@ -28,6 +31,9 @@ public class NMSReflections {
   public static void setField(Object object, String fieldName, Object value) {
     try {
       final Field field = getField(object.getClass(), fieldName);
+      if (field == null) {
+        return;
+      }
       field.set(object, value);
       field.setAccessible(false);
     } catch (NoSuchFieldError | IllegalAccessException ex) {

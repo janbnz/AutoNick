@@ -40,7 +40,7 @@ public class AutoNickAPI {
   private final HashMap<UUID, String> playerName = new HashMap<>();
   private final HashMap<String, Player> namePlayer = new HashMap<>();
   private final HashMap<Player, BukkitRunnable> run = new HashMap<>();
-  private final HashMap<Player, String> oldDisplayname = new HashMap<>();
+  private final HashMap<Player, String> oldDisplayName = new HashMap<>();
   private final HashMap<Player, String> nicks = new HashMap<>();
   private final HashMap<Player, String> realUUIDS = new HashMap<>();
 
@@ -63,7 +63,7 @@ public class AutoNickAPI {
     playerName.put(player.getUniqueId(), player.getName());
     namePlayer.put(nick, player);
     realUUIDS.put(player, player.getUniqueId().toString());
-    oldDisplayname.put(player, player.getPlayerListName());
+    oldDisplayName.put(player, player.getPlayerListName());
 
     String tabName = (AutoNick.getConfiguration().getBoolean("changeTabname") ? AutoNick
         .getConfiguration().getString("tabName").replace("{NICKNAME}", nick)
@@ -238,12 +238,12 @@ public class AutoNickAPI {
 
     names.add(player.getName());
 
-    player.setDisplayName(oldDisplayname.get(player));
-    player.setCustomName(oldDisplayname.get(player));
+    player.setDisplayName(oldDisplayName.get(player));
+    player.setCustomName(oldDisplayName.get(player));
     player.setCustomNameVisible(true);
     player.setPlayerListName(player.getName());
     nickedPlayers.remove(player);
-    oldDisplayname.remove(player);
+    oldDisplayName.remove(player);
     nicks.remove(player);
 
     Bukkit.getPluginManager().callEvent(new PlayerNickEvent(player, player.getName()));
