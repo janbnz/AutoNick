@@ -26,7 +26,7 @@
                 <configuration>
                     <source>8</source>
                     <target>8</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             <plugin>
