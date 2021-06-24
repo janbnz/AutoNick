@@ -67,6 +67,10 @@ Password: myPassword
 TableName: AutoNick
 # ============ MySQL ============ #
 
+# The skin section uses UUIDs ("Universally Unique Identifiers").
+# Every player has a UUID so servers can identify them because they can change their names.
+# To find some player UUIDs you can use https://namemc.com and look for some players.
+# After you've clicked on a player, you can copy it's UUID!
 Skins:
   - e9013c2f-da01-425f-a48b-516f55e94386
   - 8d05a5ec-100b-4914-8e5f-4fe434b27393
