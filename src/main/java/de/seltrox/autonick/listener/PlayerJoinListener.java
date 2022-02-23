@@ -11,6 +11,8 @@ package de.seltrox.autonick.listener;
 
 import de.seltrox.autonick.AutoNick;
 import de.seltrox.autonick.AutoNickAPI;
+import de.seltrox.autonick.mysql.MySql;
+import de.seltrox.autonick.player.NickPlayer;
 import de.seltrox.autonick.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -31,22 +33,38 @@ public class PlayerJoinListener implements Listener {
                         .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
             }
             if (AutoNick.getConfiguration().getBoolean("nickOnThisServer")) {
-                System.out.println(api.hasNickActivated(player.getUniqueId().toString()) + " " + AutoNick.getConfiguration().isBungeeCord());
-                if (api.hasNickActivated(player.getUniqueId().toString()) || !AutoNick.getConfiguration().isBungeeCord()) {
-                    api.nickPlayer(player);
-                    player.getInventory().setItem(AutoNick.getConfiguration().getInteger("NickItemSlot") - 1,
-                            new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
-                                    .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
-                    player.sendMessage(AutoNick.getConfiguration().getString("NickMessage").replace("{NICKNAME}", player.getCustomName()));
-                }
+                AutoNick.getApi().getPlayerInformation(player.getUniqueId(), new MySql.Callback() {
+                    @Override
+                    public void onSuccess(NickPlayer nickPlayer) {
+                        if (nickPlayer.isNickActivated() || !AutoNick.getConfiguration().isBungeeCord()) {
+                            api.nickPlayer(player);
+                            player.getInventory().setItem(AutoNick.getConfiguration().getInteger("NickItemSlot") - 1,
+                                    new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
+                                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
+                            player.sendMessage(AutoNick.getConfiguration().getString("NickMessage").replace("{NICKNAME}", player.getCustomName()));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception exception) {
+                    }
+                });
             }
         } else {
             if (AutoNick.getConfiguration().isBungeeCord()) {
-                if (api.isPlayerExisting(player.getUniqueId().toString())) {
-                    api.removeFromDatabase(player);
-                }
+                AutoNick.getApi().getPlayerInformation(player.getUniqueId(), new MySql.Callback() {
+                    @Override
+                    public void onSuccess(NickPlayer nickPlayer) {
+                        if (nickPlayer.isExisting()) {
+                            api.removeFromDatabase(player);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception exception) {
+                    }
+                });
             }
         }
     }
-
 }

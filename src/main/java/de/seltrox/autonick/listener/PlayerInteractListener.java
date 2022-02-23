@@ -47,25 +47,7 @@ public class PlayerInteractListener implements Listener {
                         NickGui.open(player);
                         player.playSound(player.getLocation(), Sound.CHICKEN_EGG_POP, 1, 1);
                     } else {
-                        if (AutoNick.getConfiguration().isBungeeCord()) {
-                            api.toggleNick(player);
-                        } else {
-                            if (api.isNicked(player)) {
-                                player.sendMessage(AutoNick.getConfiguration().getString("UnnickMessage").replace("{NICKNAME}", player.getCustomName()));
-                                api.unnick(player);
-                                if (AutoNick.getConfiguration().getBoolean("NickItem")) {
-                                    player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
-                                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
-                                }
-                            } else {
-                                api.nickPlayer(player);
-                                if (AutoNick.getConfiguration().getBoolean("NickItem")) {
-                                    player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
-                                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
-                                }
-                                player.sendMessage(AutoNick.getConfiguration().getString("NickMessage").replace("{NICKNAME}", AutoNick.getApi().getNickname(player)));
-                            }
-                        }
+                        api.onPlayerInteract(player);
                     }
                 }
             }

@@ -10,6 +10,8 @@
 package de.seltrox.autonick.gui;
 
 import de.seltrox.autonick.AutoNick;
+import de.seltrox.autonick.mysql.MySql;
+import de.seltrox.autonick.player.NickPlayer;
 import de.seltrox.autonick.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -36,16 +38,25 @@ public class NickGui {
             inventory.setItem(i, glass);
         }
 
-        if ((AutoNick.getConfiguration().isBungeeCord() && AutoNick.getApi().hasNickActivated(player.getUniqueId().toString())) || AutoNick.getApi().isNicked(player)) {
-            inventory.setItem(22,
-                    new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
-                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
-        } else {
-            inventory.setItem(22, new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
-                    .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
-        }
+        AutoNick.getApi().getPlayerInformation(player.getUniqueId(), new MySql.Callback() {
+            @Override
+            public void onSuccess(NickPlayer nickPlayer) {
+                if ((AutoNick.getConfiguration().isBungeeCord() && nickPlayer.isNickActivated()) || AutoNick.getApi().isNicked(player)) {
+                    inventory.setItem(22,
+                            new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
+                                    .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
+                } else {
+                    inventory.setItem(22, new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
+                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
+                }
 
-        player.openInventory(inventory);
+                player.openInventory(inventory);
+            }
+
+            @Override
+            public void onFailure(Exception exception) {
+            }
+        });
     }
 
 }

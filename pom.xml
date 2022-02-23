@@ -6,7 +6,7 @@
 
     <groupId>de.seltrox</groupId>
     <artifactId>autonick</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.4.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>AutoNick</name>

@@ -9,7 +9,12 @@
 
 package de.seltrox.autonick.mysql;
 
+import de.seltrox.autonick.AutoNick;
+import de.seltrox.autonick.player.NickPlayer;
+import org.bukkit.Bukkit;
+
 import java.sql.*;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -19,16 +24,18 @@ public class MySql {
     private final String database;
     private final String username;
     private final String password;
+    private final String tableName;
 
     private Connection connection;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public MySql(String host, String database, String username, String password) {
+    public MySql(String host, String database, String username, String password, String tableName) {
         this.host = host;
         this.database = database;
         this.username = username;
         this.password = password;
+        this.tableName = tableName;
         this.connect();
     }
 
@@ -78,6 +85,16 @@ public class MySql {
             ex.printStackTrace();
         }
         return false;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public interface Callback {
+        void onSuccess(NickPlayer nickPlayer);
+
+        void onFailure(Exception exception);
     }
 
 }
