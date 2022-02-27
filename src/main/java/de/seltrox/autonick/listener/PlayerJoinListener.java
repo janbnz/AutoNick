@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerJoinListener implements Listener {
 
@@ -29,8 +30,13 @@ public class PlayerJoinListener implements Listener {
 
         if (player.hasPermission(AutoNick.getConfiguration().getString("permission"))) {
             if (AutoNick.getConfiguration().getBoolean("NickItem")) {
-                player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
-                        .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
+                                .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
+                    }
+                }.runTaskLater(AutoNick.getInstance(), 5);
             }
             if (AutoNick.getConfiguration().getBoolean("nickOnThisServer")) {
                 AutoNick.getApi().getPlayerInformation(player.getUniqueId(), new MySql.Callback() {
@@ -38,10 +44,15 @@ public class PlayerJoinListener implements Listener {
                     public void onSuccess(NickPlayer nickPlayer) {
                         if (nickPlayer.isNickActivated() || !AutoNick.getConfiguration().isBungeeCord()) {
                             api.nickPlayer(player);
-                            player.getInventory().setItem(AutoNick.getConfiguration().getInteger("NickItemSlot") - 1,
-                                    new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
-                                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
                             player.sendMessage(AutoNick.getConfiguration().getString("NickMessage").replace("{NICKNAME}", player.getCustomName()));
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    player.getInventory().setItem(AutoNick.getConfiguration().getInteger("NickItemSlot") - 1,
+                                            new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
+                                                    .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
+                                }
+                            }.runTaskLater(AutoNick.getInstance(), 5);
                         }
                     }
 

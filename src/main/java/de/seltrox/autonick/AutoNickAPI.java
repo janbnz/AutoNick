@@ -36,6 +36,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -49,6 +50,8 @@ public class AutoNickAPI {
     private final HashMap<Player, String> oldDisplayName = new HashMap<>();
     private final HashMap<Player, String> nicks = new HashMap<>();
     private final HashMap<Player, String> realUUIDS = new HashMap<>();
+
+    private final HashMap<Player, String> oldPlayerListName = new HashMap<>();
 
     private List<String> names = new ArrayList<>();
     private List<String> skins = new ArrayList<>();
@@ -70,7 +73,8 @@ public class AutoNickAPI {
         playerName.put(player.getUniqueId(), player.getName());
         namePlayer.put(nick, player);
         realUUIDS.put(player, player.getUniqueId().toString());
-        oldDisplayName.put(player, player.getPlayerListName());
+        oldDisplayName.put(player, player.getDisplayName());
+        oldPlayerListName.put(player, player.getPlayerListName());
 
         String tabName = (AutoNick.getConfiguration().getBoolean("changeTabname") ? AutoNick
                 .getConfiguration().getString("tabName").replace("{NICKNAME}", nick)
@@ -270,9 +274,10 @@ public class AutoNickAPI {
         player.setDisplayName(oldDisplayName.get(player));
         player.setCustomName(oldDisplayName.get(player));
         player.setCustomNameVisible(true);
-        player.setPlayerListName(player.getName());
+        player.setPlayerListName(oldPlayerListName.get(player));
         nickedPlayers.remove(player);
         oldDisplayName.remove(player);
+        oldPlayerListName.remove(player);
         nicks.remove(player);
 
         Bukkit.getPluginManager().callEvent(new PlayerNickEvent(player, player.getName()));
