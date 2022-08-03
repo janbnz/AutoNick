@@ -614,7 +614,7 @@ public class AutoNickAPI {
                 "DELETE FROM " + tableName + " WHERE UUID='" + player.getUniqueId().toString() + "'");
     }
 
-    private void changeName(String name, Player player) {
+    public void changeName(String name, Player player) {
         try {
             Method getHandle = player.getClass().getMethod("getHandle");
             Object entityPlayer = getHandle.invoke(player);
