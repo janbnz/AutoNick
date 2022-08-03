@@ -86,67 +86,7 @@ public class AutoNickAPI {
 
         changeName(nick, player);
 
-        try {
-            final Class<?> craftPlayer = NMSReflections.getCraftBukkitClass("entity.CraftPlayer");
-            if (craftPlayer == null) {
-                throw new NullPointerException(
-                        "Error while trying to nick player! The CraftPlayer is null!");
-            }
-            final Method playerHandle = craftPlayer.getMethod("getHandle");
-            final Object entityPlayer = playerHandle.invoke(player);
-
-            Object newEntityPlayer = Array.newInstance(entityPlayer.getClass(), 1);
-            Array.set(newEntityPlayer, 0, entityPlayer);
-
-            final String version = NMSReflections.getVersion();
-            Object playerAddPacket;
-            Object playerRemovePacket;
-
-            if (version.equals("v1_7_R4")) {
-                Class<?> playOutPlayerInfo = NMSReflections.getNMSClass("PacketPlayOutPlayerInfo");
-                if (playOutPlayerInfo == null) {
-                    throw new NullPointerException(
-                            "Error while trying to nick player! PacketPlayOutPlayerInfo is null!");
-                }
-                playerRemovePacket = playOutPlayerInfo
-                        .getMethod("removePlayer", NMSReflections.getNMSClass("EntityPlayer"))
-                        .invoke(playOutPlayerInfo, newEntityPlayer);
-                playerAddPacket = playOutPlayerInfo
-                        .getMethod("addPlayer", NMSReflections.getNMSClass("EntityPlayer"))
-                        .invoke(playOutPlayerInfo, newEntityPlayer);
-            } else {
-                Object playOutTitle = NMSReflections.getNMSClass("PacketPlayOutPlayerInfo")
-                        .getDeclaredClasses()[(version.startsWith("v1_1") && !(version.equals("1_10_R1"))) ? 1
-                        : 2].getField("REMOVE_PLAYER").get(null);
-                Class<?> constructorArray = Array.newInstance(NMSReflections.getNMSClass("EntityPlayer"), 0)
-                        .getClass();
-                Constructor<?> packetConstructor = NMSReflections.getNMSClass("PacketPlayOutPlayerInfo")
-                        .getConstructor(
-                                NMSReflections.getNMSClass("PacketPlayOutPlayerInfo").getDeclaredClasses()[
-                                        (version.startsWith("v1_1") && !(version.equals("1_10_R1"))) ? 1
-                                                : 2],
-                                constructorArray);
-                playerRemovePacket = packetConstructor.newInstance(playOutTitle, newEntityPlayer);
-
-                Object playOutTitleAdd = NMSReflections.getNMSClass("PacketPlayOutPlayerInfo")
-                        .getDeclaredClasses()[(version.startsWith("v1_1") && !(version.equals("1_10_R1"))) ? 1
-                        : 2].getField("ADD_PLAYER").get(null);
-                Class<?> constructorArrayAdd = Array
-                        .newInstance(NMSReflections.getNMSClass("EntityPlayer"), 0).getClass();
-                Constructor<?> packetConstructorAdd = NMSReflections.getNMSClass("PacketPlayOutPlayerInfo")
-                        .getConstructor(
-                                NMSReflections.getNMSClass("PacketPlayOutPlayerInfo").getDeclaredClasses()[
-                                        (version.startsWith("v1_1") && !(version.equals("1_10_R1"))) ? 1
-                                                : 2],
-                                constructorArrayAdd);
-                playerAddPacket = packetConstructorAdd.newInstance(playOutTitleAdd, newEntityPlayer);
-            }
-
-            sendPacket(playerRemovePacket);
-            sendPacket(playerAddPacket);
-        } catch (NoSuchFieldError | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | NoSuchFieldException ex) {
-            ex.printStackTrace();
-        }
+        refreshPlayer(player);
 
         names.remove(nick);
         nickedPlayers.add(player);
@@ -203,10 +143,7 @@ public class AutoNickAPI {
         nickPlayer(player, getRandomNickname());
     }
 
-    public void unnick(Player player) {
-        realUUIDS.remove(player);
-        String name = getRealName(player.getName());
-
+    public void refreshPlayer(Player player) {
         try {
             final Class<?> craftPlayer = NMSReflections.getCraftBukkitClass("entity.CraftPlayer");
             if (craftPlayer == null) {
@@ -268,6 +205,13 @@ public class AutoNickAPI {
         } catch (NoSuchFieldError | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | NoSuchFieldException ex) {
             ex.printStackTrace();
         }
+    }
+
+    public void unnick(Player player) {
+        realUUIDS.remove(player);
+        String name = getRealName(player.getName());
+
+        refreshPlayer(player);
 
         names.add(player.getName());
 
