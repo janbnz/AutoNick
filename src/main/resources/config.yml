@@ -4,7 +4,7 @@
 #       / _ \   | | | | | __|  / _ \  |  \| | | |  / __| | |/ /     #
 #      / ___ \  | |_| | | |_  | (_) | | |\  | | | | (__  |   <      #
 #     /_/   \_\  \__,_|  \__|  \___/  |_| \_| |_|  \___| |_|\_\     #
-#                                                       by Seltrox  #
+#                                                          by Jan   #
 # ================================================================= #
 
 # ============ Important ============ #
@@ -17,19 +17,24 @@
 # ============ General ============ #
 prefix: "&aAutoNick &8»"
 noPermission: "{PREFIX} &cYou don't have permission to do that!"
-bungeecord: false
-nickOnThisServer: false
+
 permission: "autonick.nick"
 adminPermission: "autonick.admin"
+
+bungeecord: false
+nickOnThisServer: false
 changeSkin: true
+
 changeTabname: true
-tabName: "&6Premium &7» &6{NICKNAME}"
 changeChat: true
+
+tabName: "&6Premium &7» &6{NICKNAME}"
 chatFormat: "&6Premium &7» &6{NICKNAME}&7: &f"
 
 # This means that users can choose their own nickname with /nick <name>
 chooseOwnNick: false
 ownNickPermission: "autonick.ownNick"
+
 tooManyChars: "{PREFIX} &cPlease choose a username with a maximum of 16 chars"
 tooShort: "{PREFIX} &cPlease choose a username with a minimum of 3 chars"
 choosedOwnName: "{PREFIX} &cYou can't choose your original name!"
@@ -41,36 +46,57 @@ guiTitle: "&8» &aAutoNick"
 # ============ Gui ============ #
 
 # =========== Items ============ #
-NickItem: true
-NickItemSlot: 5
-NickDelay: true
-NickDelayTime: 3
-MessageOnDelay: true
-DelayMessage: "{PREFIX} &cYou have to wait before you can use this item!"
-
-ItemIDActivated: 421
-ItemNameActivated: "&aAutoNick &7» &aActivated"
-ActivateMessage: "{PREFIX} &aActivated AutoNick!"
-NickMessage: "{PREFIX} &7You are now nicked as &4{NICKNAME}"
-
-ItemIDDeactivated: 421
-ItemNameDeactivated: "&aAutoNick &7» &cDeactivated"
-DeactivateMessage: "{PREFIX} &cDeactivated AutoNick!"
-UnnickMessage: "{PREFIX} &7You disabled your nickname!"
+nickItem:
+  enabled: true
+  slot: 5
+  delay:
+    enabled: true
+    # Time in seconds
+    time: 3
+  delayMessage:
+    enabled: true
+    message: "{PREFIX} &cYou have to wait before you can use this item!"
+  activatedItem:
+    id: 421
+    itemName: "&aAutoNick &7» &aActivated"
+    activateMessage: "{PREFIX} &aAutoNick enabled"
+    nickMessage: "{PREFIX} &7You are now nicked as &4{NICKNAME}"
+  deactivatedItem:
+    id: 421
+    itemName: "&aAutoNick &7» &cDeactivated"
+    deactivateMessage: "{PREFIX} &cAutoNick disabled"
+    unnickMessage: "{PREFIX} &7You are no longer nicked"
 # =========== Items ============ #
 
-# ============ MySQL ============ #
-Host: localhost
-Database: myDatabase
-Username: myUsername
-Password: myPassword
-TableName: AutoNick
-# ============ MySQL ============ #
+# ============ Database ============ #
+
+# This section is ignored if bungeecord is set to false
+# Available types: mysql, mongodb
+database:
+  type: mysql
+
+mySql:
+  host: localhost
+  database: myDatabase
+  username: myUsername
+  password: myPassword
+  tableName: AutoNick
+
+mongodb:
+  host: localhost
+  username: myUsername
+  password: myPassword
+  # If you fill in a connection string, the values above will be ignored
+  connectionUrl: ""
+  database: myDatabase
+  collection: AutoNick
+
+# ============ Database ============ #
 
 # The skin section uses UUIDs ("Universally Unique Identifiers").
 # Every player has a UUID so servers can identify them because they can change their names.
 # To find some player UUIDs you can use https://namemc.com and look for some players.
-# After you've clicked on a player, you can copy it's UUID!
+# After you've clicked on a player, you can copy its UUID!
 Skins:
   - e9013c2f-da01-425f-a48b-516f55e94386
   - 8d05a5ec-100b-4914-8e5f-4fe434b27393
@@ -96,6 +122,16 @@ Skins:
   - f5716b6d-0899-431c-8e38-6add00447760
   - 597d169a-a685-4029-b2aa-0cae06114f84
   - c15e5087-f701-4c03-8ee8-af5b8cc96729
+  - 7ff49967-dda4-4fec-b294-74cf55e3df76
+  - 71bfa876-a06b-4247-b7d0-4239ea85e9b7
+  - cc577e62-ba6d-4314-bebc-0459566a8443
+  - f9881ff2-2747-4f9f-a303-9efd19db7e9c
+  - 0fa06b0d-a6a9-42c7-8294-e0d3793c4416
+  - f9df0875-d761-4af5-b153-0015939c0957
+  - 4e0fa0e7-abd6-4bd0-bd5e-2b73b9045629
+  - beaf2c6f-dd4c-43b7-a2f6-af98d3e43cc5
+  - 0547c55b-1011-4714-b35e-95bea1415fdc
+  - ed0e9b88-7ce9-4946-9fdf-ce403c7fc864
 
 Names:
   - 0Zero0
@@ -423,7 +459,6 @@ Names:
   - milkyyy_
   - Mimo_the_Cat
   - MinecraftMasterz
-  - MinecraftMasterz
   - MineMan_620
   - MisterModerator
   - MlgLucasHD
@@ -461,7 +496,6 @@ Names:
   - onlygame
   - OpelSpeedster
   - OprahChrist
-  - OrtStefan2007
   - Pancakes
   - PAnikDesigns
   - papthedog05
@@ -479,7 +513,6 @@ Names:
   - PillowTalk
   - pipola
   - PlayToWin
-  - PleaseDoesItNot
   - PokeGoPlayer
   - pokemon_pie
   - Polak2004
@@ -509,18 +542,14 @@ Names:
   - Roachiv
   - robbekes
   - robdee
-  - robdee
-  - Robekh
   - RoboboyLittle
   - robotronic
   - Rochambo
   - roebuck
   - RtYyU36
   - rumblefish
-  - rumblefish
   - runiiii
   - runnerman1
-  - runthistown
   - runthistown
   - rutetid
   - ry22an
@@ -590,12 +619,8 @@ Names:
   - Taani
   - Taitos
   - tapout10
-  - tapout10
-  - tapout10
   - TaqticalNeysto
   - Techdolpihn
-  - TehEPICD00D
-  - TEH_CATFACE
   - TerenceKoj
   - thamightybobo
   - TheAisi
@@ -607,7 +632,6 @@ Names:
   - TheKingOPower
   - theSero
   - thetangledhand
-  - The_Other_Retard
   - The_Redstonegeny
   - The_SnowBro
   - ThomasHD
@@ -619,7 +643,6 @@ Names:
   - TokyoGhoulGirl
   - TotallNasty
   - ToxicPvP
-  - tragisch
   - Traveler
   - Travuersa
   - tubbsy_
@@ -633,7 +656,6 @@ Names:
   - UnmaskedDavid
   - Unsuccessfulness
   - ur_dead
-  - Usernamenotfound
   - Usoka
   - v1per93
   - Vacien

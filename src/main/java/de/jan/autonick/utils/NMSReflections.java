@@ -1,13 +1,4 @@
-/*
- * (C) Copyright 2021, Jan Benz
- *
- * This software is released under the terms of the Unlicense.
- * See https://unlicense.org/
- * for more information.
- *
- */
-
-package de.seltrox.autonick.utils;
+package de.jan.autonick.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

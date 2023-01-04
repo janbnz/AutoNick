@@ -1,42 +1,30 @@
-/*
- * (C) Copyright 2019, Seltrox. Jan, http://seltrox.de.
- *
- * This software is released under the terms of the Unlicense.
- * See https://unlicense.org/
- * for more information.
- *
- */
-
-package de.seltrox.autonick;
+package de.jan.autonick;
 
 import com.google.common.hash.Hashing;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import de.seltrox.autonick.events.PlayerNickEvent;
-import de.seltrox.autonick.mysql.MySql;
-import de.seltrox.autonick.player.NickPlayer;
-import de.seltrox.autonick.utils.GameProfileBuilder;
-import de.seltrox.autonick.utils.ItemBuilder;
-import de.seltrox.autonick.utils.NMSReflections;
+import de.jan.autonick.database.DatabaseRegistry;
+import de.jan.autonick.events.PlayerNickEvent;
+import de.jan.autonick.utils.GameProfileBuilder;
+import de.jan.autonick.utils.ItemBuilder;
+import de.jan.autonick.utils.NMSReflections;
+import de.jan.autonick.player.NickPlayer;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import net.sourcewriters.minecraft.vcompat.VersionCompatProvider;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -47,26 +35,22 @@ public class AutoNickAPI {
     private final HashMap<UUID, String> playerName = new HashMap<>();
     private final HashMap<String, Player> namePlayer = new HashMap<>();
     private final HashMap<Player, BukkitRunnable> run = new HashMap<>();
-    private final HashMap<Player, String> oldDisplayName = new HashMap<>();
-    private final HashMap<Player, String> nicks = new HashMap<>();
-    private final HashMap<Player, String> realUUIDS = new HashMap<>();
 
+    private final HashMap<Player, String> oldDisplayName = new HashMap<>(), nicks = new HashMap<>(), realUUIDS = new HashMap<>();
     private final HashMap<Player, String> oldPlayerListName = new HashMap<>();
 
-    private List<String> names = new ArrayList<>();
-    private List<String> skins = new ArrayList<>();
+    private List<String> names = new ArrayList<>(), skins = new ArrayList<>();
     private final ArrayList<Player> nickedPlayers = new ArrayList<>();
 
     private final Random random = new Random();
 
     public AutoNickAPI() {
-        initializeNames();
+        this.initializeNames();
     }
 
     private void initializeNames() {
-        names = AutoNick.getInstance().getConfig().getStringList("Names").stream().filter(name -> name.length() <= 16 && name.length() >= 3).collect(
-                Collectors.toList());
-        skins = AutoNick.getInstance().getConfig().getStringList("Skins");
+        this.names = AutoNick.getInstance().getConfig().getStringList("Names").stream().filter(name -> name.length() <= 16 && name.length() >= 3).collect(Collectors.toList());
+        this.skins = AutoNick.getInstance().getConfig().getStringList("Skins");
     }
 
     public void nickPlayer(Player player, String nick) {
@@ -77,8 +61,8 @@ public class AutoNickAPI {
         oldPlayerListName.put(player, player.getPlayerListName());
 
         String tabName = (AutoNick.getConfiguration().getBoolean("changeTabname") ? AutoNick
-                .getConfiguration().getString("tabName").replace("{NICKNAME}", nick)
-                : nick);
+                .getConfiguration().getString("tabName").replace("{NICKNAME}", nick) : nick);
+
         player.setDisplayName(tabName);
         player.setCustomName(tabName);
         player.setPlayerListName(tabName);
@@ -92,12 +76,8 @@ public class AutoNickAPI {
         nickedPlayers.add(player);
         nicks.put(player, nick);
 
-        if (AutoNick.getConfiguration().isBungeeCord()) {
-            String tableName = AutoNick.getConfiguration().getString("TableName");
-            AutoNick.getInstance().getMySql().update(
-                    "UPDATE " + tableName + " SET NickName='" + nick + "' WHERE UUID='" + player
-                            .getUniqueId().toString() + "'");
-        }
+        if (AutoNick.getConfiguration().isBungeeCord())
+            DatabaseRegistry.getDatabase().setNickname(player.getUniqueId(), nick);
 
         Bukkit.getPluginManager().callEvent(new PlayerNickEvent(player, nick));
 
@@ -105,7 +85,7 @@ public class AutoNickAPI {
             changeSkin(player);
         }
 
-        if (AutoNick.getConfiguration().getBoolean("NickDelay")) {
+        if (AutoNick.getConfiguration().getBoolean("nickItem.delay.enabled")) {
             run.put(player, new BukkitRunnable() {
                 public void run() {
                     run.get(player).cancel();
@@ -113,7 +93,7 @@ public class AutoNickAPI {
                 }
             });
             run.get(player).runTaskLater(AutoNick.getInstance(),
-                    AutoNick.getConfiguration().getInteger("NickDelayTime") * 20L);
+                    AutoNick.getConfiguration().getInteger("nickItem.delay.time") * 20L);
         }
     }
 
@@ -122,19 +102,19 @@ public class AutoNickAPI {
             this.toggleNick(player);
         } else {
             if (this.isNicked(player)) {
-                player.sendMessage(AutoNick.getConfiguration().getString("UnnickMessage").replace("{NICKNAME}", player.getCustomName()));
+                player.sendMessage(AutoNick.getConfiguration().getString("nickItem.deactivatedItem.unnickMessage").replace("{NICKNAME}", player.getCustomName()));
                 this.unnick(player);
-                if (AutoNick.getConfiguration().getBoolean("NickItem")) {
-                    player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
-                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated")).build());
+                if (AutoNick.getConfiguration().getBoolean("nickItem.enabled")) {
+                    player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("nickItem.deactivatedItem.id")))
+                            .setDisplayName(AutoNick.getConfiguration().getString("nickItem.deactivatedItem.itemName")).build());
                 }
             } else {
                 this.nickPlayer(player);
-                if (AutoNick.getConfiguration().getBoolean("NickItem")) {
-                    player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
-                            .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated")).build());
+                if (AutoNick.getConfiguration().getBoolean("nickItem.enabled")) {
+                    player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(), new ItemBuilder(Material.getMaterial(AutoNick.getConfiguration().getInteger("nickItem.activatedItem.id")))
+                            .setDisplayName(AutoNick.getConfiguration().getString("nickItem.activatedItem.itemName")).build());
                 }
-                player.sendMessage(AutoNick.getConfiguration().getString("NickMessage").replace("{NICKNAME}", AutoNick.getApi().getNickname(player)));
+                player.sendMessage(AutoNick.getConfiguration().getString("nickItem.activatedItem.nickMessage").replace("{NICKNAME}", AutoNick.getApi().getNickname(player)));
             }
         }
     }
@@ -202,7 +182,8 @@ public class AutoNickAPI {
 
             sendPacket(playerRemovePacket);
             sendPacket(playerAddPacket);
-        } catch (NoSuchFieldError | InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | NoSuchFieldException ex) {
+        } catch (NoSuchFieldError | InstantiationException | InvocationTargetException | NoSuchMethodException |
+                 IllegalAccessException | NoSuchFieldException ex) {
             ex.printStackTrace();
         }
     }
@@ -227,18 +208,14 @@ public class AutoNickAPI {
         Bukkit.getPluginManager().callEvent(new PlayerNickEvent(player, player.getName()));
         changeName(name, player);
 
-        if (AutoNick.getConfiguration().isBungeeCord()) {
-            String tableName = AutoNick.getConfiguration().getString("TableName");
-            AutoNick.getInstance().getMySql().update(
-                    "UPDATE " + tableName + " SET NickName='" + player.getName() + "' WHERE UUID='" + player
-                            .getUniqueId().toString() + "'");
-        }
+        if (AutoNick.getConfiguration().isBungeeCord())
+            DatabaseRegistry.getDatabase().setNickname(player.getUniqueId(), player.getName());
 
         if (AutoNick.getConfiguration().getBoolean("changeSkin")) {
             changeSkin(player, player.getUniqueId());
         }
 
-        if (AutoNick.getConfiguration().getBoolean("NickDelay")) {
+        if (AutoNick.getConfiguration().getBoolean("nickItem.delay.enabled")) {
             run.put(player, new BukkitRunnable() {
                 public void run() {
                     run.get(player).cancel();
@@ -246,7 +223,7 @@ public class AutoNickAPI {
                 }
             });
             run.get(player).runTaskLater(AutoNick.getInstance(),
-                    AutoNick.getConfiguration().getInteger("NickDelayTime") * 20L);
+                    AutoNick.getConfiguration().getInteger("nickItem.delay.time") * 20L);
         }
     }
 
@@ -277,7 +254,8 @@ public class AutoNickAPI {
                     try {
                         sendPacket(currentPlayer, NMSReflections.getNMSClass("PacketPlayOutEntityDestroy")
                                 .getConstructor(int[].class).newInstance(new int[]{player.getEntityId()}));
-                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                             NoSuchMethodException ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -467,12 +445,14 @@ public class AutoNickAPI {
                         player.setLevel(level);
                         player.setFoodLevel(food);
                         player.setFlying(flying);
-                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | NoSuchFieldException | InstantiationException | NullPointerException ex) {
+                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
+                             NoSuchFieldException | InstantiationException | NullPointerException ex) {
                         ex.printStackTrace();
                     }
                 }
             }.runTaskLater(AutoNick.getInstance(), 4L);
-        } catch (NoSuchFieldError | NoSuchMethodException | IllegalAccessException | InvocationTargetException | NoSuchFieldException | InstantiationException | NullPointerException ex) {
+        } catch (NoSuchFieldError | NoSuchMethodException | IllegalAccessException | InvocationTargetException |
+                 NoSuchFieldException | InstantiationException | NullPointerException ex) {
             ex.printStackTrace();
         }
     }
@@ -527,70 +507,45 @@ public class AutoNickAPI {
         return names.get(random.nextInt(names.size()));
     }
 
-    public void getPlayerInformation(UUID uuid, MySql.Callback callback) {
+    public void getPlayerInformation(UUID uuid, DatabaseRegistry.Callback callback) {
         Bukkit.getScheduler().runTaskAsynchronously(AutoNick.getInstance(), () -> {
-            try {
-                ResultSet resultSet = AutoNick.getInstance().getMySql()
-                        .query("SELECT * FROM " + AutoNick.getInstance().getMySql().getTableName()
-                                + " WHERE UUID='" + uuid + "'");
-                if (resultSet.next()) {
-                    if (resultSet.getString("UUID") == null) {
-                        NickPlayer player = new NickPlayer(uuid, false, false);
-                        Bukkit.getScheduler().runTask(AutoNick.getInstance(), () -> callback.onSuccess(player));
-                        return;
-                    }
-                    NickPlayer player = new NickPlayer(uuid, true,
-                            resultSet.getInt("Activated") == 1);
-                    Bukkit.getScheduler().runTask(AutoNick.getInstance(), () -> callback.onSuccess(player));
-                } else {
-                    NickPlayer player = new NickPlayer(uuid, false, false);
-                    Bukkit.getScheduler().runTask(AutoNick.getInstance(), () -> callback.onSuccess(player));
-                }
-            } catch (SQLException ex) {
-                Bukkit.getScheduler().runTask(AutoNick.getInstance(), () -> callback.onFailure(ex));
-            }
+            final NickPlayer player = new NickPlayer(uuid, DatabaseRegistry.getDatabase().isExisting(uuid),
+                    DatabaseRegistry.getDatabase().hasNickActivated(uuid));
+            Bukkit.getScheduler().runTask(AutoNick.getInstance(), () -> callback.onSuccess(player));
         });
     }
 
     public void toggleNick(Player player) {
-        String tableName = AutoNick.getInstance().getMySql().getTableName();
-
-        this.getPlayerInformation(player.getUniqueId(), new MySql.Callback() {
+        this.getPlayerInformation(player.getUniqueId(), new DatabaseRegistry.Callback() {
             @Override
             public void onSuccess(NickPlayer nickPlayer) {
-                if (!(nickPlayer.isExisting())) {
-                    AutoNick.getInstance().getMySql().update(
-                            "INSERT INTO " + tableName + "(UUID, Activated, NickName) VALUES ('" + player
-                                    .getUniqueId().toString() + "', '" + 0 + "', '" + player.getName() + "');");
-                }
+                if (!(nickPlayer.isExisting())) DatabaseRegistry.getDatabase().createPlayer(player);
 
                 int state;
                 if (nickPlayer.isNickActivated()) {
                     state = 0;
-                    player.sendMessage(AutoNick.getConfiguration().getString("DeactivateMessage"));
-                    if (AutoNick.getConfiguration().getBoolean("NickItem")) {
+                    player.sendMessage(AutoNick.getConfiguration().getString("nickItem.deactivatedItem.deactivateMessage"));
+                    if (AutoNick.getConfiguration().getBoolean("nickItem.enabled")) {
                         player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(),
                                 new ItemBuilder(
-                                        Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDDeactivated")))
-                                        .setDisplayName(AutoNick.getConfiguration().getString("ItemNameDeactivated"))
+                                        Material.getMaterial(AutoNick.getConfiguration().getInteger("nickItem.deactivatedItem.id")))
+                                        .setDisplayName(AutoNick.getConfiguration().getString("nickItem.deactivatedItem.itemName"))
                                         .build());
                     }
                 } else {
                     state = 1;
-                    player.sendMessage(AutoNick.getConfiguration().getString("ActivateMessage"));
-                    if (AutoNick.getConfiguration().getBoolean("NickItem")) {
+                    player.sendMessage(AutoNick.getConfiguration().getString("nickItem.activatedItem.activateMessage"));
+                    if (AutoNick.getConfiguration().getBoolean("nickItem.enabled")) {
                         player.getInventory().setItem(AutoNick.getConfiguration().getNickItemSlot(),
                                 new ItemBuilder(
-                                        Material.getMaterial(AutoNick.getConfiguration().getInteger("ItemIDActivated")))
-                                        .setDisplayName(AutoNick.getConfiguration().getString("ItemNameActivated"))
+                                        Material.getMaterial(AutoNick.getConfiguration().getInteger("nickItem.activatedItem.id")))
+                                        .setDisplayName(AutoNick.getConfiguration().getString("nickItem.activatedItem.itemName"))
                                         .build());
                     }
                 }
-                AutoNick.getInstance().getMySql().update(
-                        "UPDATE " + tableName + " SET Activated='" + state + "' WHERE UUID='" + player.getUniqueId()
-                                .toString() + "'");
+                DatabaseRegistry.getDatabase().setNickState(player.getUniqueId(), state);
 
-                if (AutoNick.getConfiguration().getBoolean("NickDelay")) {
+                if (AutoNick.getConfiguration().getBoolean("nickItem.delay.enabled")) {
                     run.put(player, new BukkitRunnable() {
                         public void run() {
                             run.get(player).cancel();
@@ -598,7 +553,7 @@ public class AutoNickAPI {
                         }
                     });
                     run.get(player).runTaskLater(AutoNick.getInstance(),
-                            AutoNick.getConfiguration().getInteger("NickDelayTime") * 20L);
+                            AutoNick.getConfiguration().getInteger("nickItem.delay.time") * 20L);
                 }
             }
 
@@ -609,9 +564,7 @@ public class AutoNickAPI {
     }
 
     public void removeFromDatabase(Player player) {
-        String tableName = AutoNick.getConfiguration().getString("TableName");
-        AutoNick.getInstance().getMySql().update(
-                "DELETE FROM " + tableName + " WHERE UUID='" + player.getUniqueId().toString() + "'");
+        DatabaseRegistry.getDatabase().deletePlayer(player.getUniqueId());
     }
 
     public void changeName(String name, Player player) {
@@ -673,7 +626,8 @@ public class AutoNickAPI {
                     p.showPlayer(player);
                 }
             }
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException e) {
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException |
+                 InvocationTargetException | NoSuchFieldException e) {
             e.printStackTrace();
         }
     }

@@ -1,13 +1,4 @@
-/*
- * (C) Copyright 2019, Seltrox. Jan, http://seltrox.de.
- *
- * This software is released under the terms of the Unlicense.
- * See https://unlicense.org/
- * for more information.
- *
- */
-
-package de.seltrox.autonick.utils;
+package de.jan.autonick.utils;
 
 import org.bukkit.Color;
 import org.bukkit.DyeColor;

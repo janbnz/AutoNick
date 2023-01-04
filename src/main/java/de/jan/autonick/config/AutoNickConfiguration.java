@@ -1,20 +1,9 @@
-/*
- * (C) Copyright 2019, Seltrox. Jan, http://seltrox.de.
- *
- * This software is released under the terms of the Unlicense.
- * See https://unlicense.org/
- * for more information.
- *
- */
+package de.jan.autonick.config;
 
-package de.seltrox.autonick.config;
+import de.jan.autonick.AutoNick;
 
-import com.sun.org.apache.xerces.internal.impl.io.UTF8Reader;
-import de.seltrox.autonick.AutoNick;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -30,14 +19,14 @@ public class AutoNickConfiguration {
         plugin.saveDefaultConfig();
 
         try {
-            configuration = YamlConfiguration.loadConfiguration(
-                    new UTF8Reader(new FileInputStream(new File(plugin.getDataFolder(), "config.yml"))));
+            this.configuration = YamlConfiguration.loadConfiguration(
+                    new BufferedReader(new InputStreamReader(new FileInputStream(new File(plugin.getDataFolder(), "config.yml")), StandardCharsets.UTF_8)));
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
             return;
         }
 
-        bungeeCord = getBoolean("bungeecord");
+        this.bungeeCord = this.getBoolean("bungeecord");
     }
 
     public String getString(String key) {
@@ -69,6 +58,6 @@ public class AutoNickConfiguration {
     }
 
     public int getNickItemSlot() {
-        return getInteger("NickItemSlot") - 1;
+        return getInteger("nickItem.slot") - 1;
     }
 }

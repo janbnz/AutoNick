@@ -1,4 +1,4 @@
-package de.seltrox.autonick.player;
+package de.jan.autonick.player;
 
 import java.util.UUID;
 

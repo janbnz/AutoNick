@@ -1,13 +1,4 @@
-/*
- * (C) Copyright 2019, Seltrox. Jan, http://seltrox.de.
- *
- * This software is released under the terms of the Unlicense.
- * See https://unlicense.org/
- * for more information.
- *
- */
-
-package de.seltrox.autonick.events;
+package de.jan.autonick.events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;

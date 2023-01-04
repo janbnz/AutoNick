@@ -24,7 +24,7 @@ AutoNick is a open source and configurable AutoNick plugin which allows you to c
 
 ### Step 3
 
-- 🔃 Create a new pull request using <a href="https://github.com/Seltrox/AutoNick/compare/" target="_blank">`https://github.com/Seltrox/AutoNick/compare/`</a>
+- 🔃 Create a new pull request using <a href="https://github.com/janbnz/AutoNick/compare/" target="_blank">`https://github.com/janbnz/AutoNick/compare/`</a>
 
 ---
 
@@ -39,7 +39,7 @@ AutoNick is a open source and configurable AutoNick plugin which allows you to c
 	</repositories>
 
 	<dependency>
-	    <groupId>com.github.Seltrox</groupId>
+	    <groupId>com.github.janbnz</groupId>
 	    <artifactId>AutoNick</artifactId>
 	    <version>LATEST</version>
 	</dependency>
@@ -56,14 +56,12 @@ AutoNick is a open source and configurable AutoNick plugin which allows you to c
 	}
 
 	dependencies {
-	        implementation 'com.github.Seltrox:AutoNick:Tag'
+	        implementation 'com.github.janbnz:AutoNick:Tag'
 	}
 ```
 
 ## Credits
 
-AutoNick: Seltrox [GitHub](https://github.com/Seltrox) | [Spigot](https://www.spigotmc.org/resources/authors/165817/) <br>
-UUIDFetcher: Jofkos  [GitHub](https://github.com/Jofkos) | [Twitter](https://twitter.com/jofkos) | [Spigot](https://www.spigotmc.org/members/24595/) <br>
 GameProfileBuilder: Jofkos  [GitHub](https://github.com/Jofkos) | [Twitter](https://twitter.com/jofkos) | [Spigot](https://www.spigotmc.org/members/24595/) <br>
   
 ## License
