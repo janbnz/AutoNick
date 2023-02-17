@@ -23,7 +23,6 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import net.sourcewriters.minecraft.vcompat.VersionCompatProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -43,6 +42,8 @@ public class AutoNickAPI {
     private final ArrayList<Player> nickedPlayers = new ArrayList<>();
 
     private final Random random = new Random();
+
+    private static boolean joinNickDisabled = false;
 
     public AutoNickAPI() {
         this.initializeNames();
@@ -634,5 +635,13 @@ public class AutoNickAPI {
 
     public String getRealUUID(Player player) {
         return realUUIDS.get(player);
+    }
+
+    public static void setJoinNickDisabled(boolean joinNickDisabled) {
+        AutoNickAPI.joinNickDisabled = joinNickDisabled;
+    }
+
+    public static boolean isJoinNickDisabled() {
+        return joinNickDisabled;
     }
 }

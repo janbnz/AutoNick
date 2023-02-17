@@ -30,8 +30,8 @@ public class PlayerJoinListener implements Listener {
                 }.runTaskLater(AutoNick.getInstance(), 5);
             }
 
-            if (AutoNick.getConfiguration().getBoolean("nickOnThisServer")) {
-                AutoNick.getApi().getPlayerInformation(player.getUniqueId(), new DatabaseRegistry.Callback() {
+            if (AutoNick.getConfiguration().getBoolean("nickOnThisServer") && !AutoNickAPI.isJoinNickDisabled()) {
+                api.getPlayerInformation(player.getUniqueId(), new DatabaseRegistry.Callback() {
                     @Override
                     public void onSuccess(NickPlayer nickPlayer) {
                         if (nickPlayer.isNickActivated() || !AutoNick.getConfiguration().isBungeeCord()) {

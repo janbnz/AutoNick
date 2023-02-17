@@ -120,12 +120,5 @@
             <version>3.12.11</version>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.github.SourceWriters</groupId>
-            <artifactId>vCompat</artifactId>
-            <version>v3.0.5</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 </project>
