@@ -54,7 +54,11 @@ public class AutoNickAPI {
         this.skins = AutoNick.getInstance().getConfig().getStringList("Skins");
     }
 
-    public void nickPlayer(Player player, String nick) {
+    public void nickPlayer(Player player) {
+        nickPlayer(player, getRandomNickname(), getRandomSkin());
+    }
+
+    public void nickPlayer(Player player, String nick, UUID skin) {
         playerName.put(player.getUniqueId(), player.getName());
         namePlayer.put(nick, player);
         realUUIDS.put(player, player.getUniqueId().toString());
@@ -83,7 +87,7 @@ public class AutoNickAPI {
         Bukkit.getPluginManager().callEvent(new PlayerNickEvent(player, nick));
 
         if (AutoNick.getConfiguration().getBoolean("changeSkin")) {
-            changeSkin(player);
+            changeSkin(player, skin);
         }
 
         if (AutoNick.getConfiguration().getBoolean("nickItem.delay.enabled")) {
@@ -118,10 +122,6 @@ public class AutoNickAPI {
                 player.sendMessage(AutoNick.getConfiguration().getString("nickItem.activatedItem.nickMessage").replace("{NICKNAME}", AutoNick.getApi().getNickname(player)));
             }
         }
-    }
-
-    public void nickPlayer(Player player) {
-        nickPlayer(player, getRandomNickname());
     }
 
     public void refreshPlayer(Player player) {
@@ -458,8 +458,8 @@ public class AutoNickAPI {
         }
     }
 
-    private void changeSkin(Player player) {
-        changeSkin(player, UUID.fromString(skins.get(random.nextInt(skins.size()))));
+    private void changeSkin(Player player, String skinUuid) {
+        changeSkin(player, skinUuid);
     }
 
     public boolean isNicked(Player player) {
@@ -506,6 +506,10 @@ public class AutoNickAPI {
 
     public String getRandomNickname() {
         return names.get(random.nextInt(names.size()));
+    }
+
+    public UUID getRandomSkin() {
+        return UUID.fromString(skins.get(random.nextInt(skins.size())));
     }
 
     public void getPlayerInformation(UUID uuid, DatabaseRegistry.Callback callback) {
