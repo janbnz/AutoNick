@@ -58,6 +58,10 @@ public class AutoNickAPI {
         nickPlayer(player, getRandomNickname(), getRandomSkin());
     }
 
+    public void nickPlayer(Player player, String nickname) {
+        nickPlayer(player, nickname, getRandomSkin());
+    }
+
     public void nickPlayer(Player player, String nick, UUID skin) {
         playerName.put(player.getUniqueId(), player.getName());
         namePlayer.put(nick, player);
@@ -509,6 +513,7 @@ public class AutoNickAPI {
     }
 
     public UUID getRandomSkin() {
+        if (skins.size() == 0) return null;
         return UUID.fromString(skins.get(random.nextInt(skins.size())));
     }
 
